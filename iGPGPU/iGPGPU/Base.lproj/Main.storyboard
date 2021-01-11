@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="ipad9_7" orientation="landscape" layout="fullscreen" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="iGPGPU" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K0Q-7H-eF3">
+                                <rect key="frame" x="10" y="364" width="100" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="oMZ-e8-hed"/>
+                                    <constraint firstAttribute="width" constant="100" id="s5e-Xp-EtF"/>
+                                </constraints>
+                                <state key="normal" title="GCD"/>
+                                <connections>
+                                    <action selector="doGCDWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2GH-ea-HrM"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nO1-Gk-EhY">
+                                <rect key="frame" x="120" y="364" width="894" height="40"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="w3r-Sd-X2Q">
+                                <rect key="frame" x="10" y="314" width="100" height="40"/>
+                                <state key="normal" title="Sequence"/>
+                                <connections>
+                                    <action selector="doSequenceWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="7Bu-Gn-kKm"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qRc-Ed-LKO">
+                                <rect key="frame" x="120" y="314" width="894" height="40"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tea-kd-Fg3">
+                                <rect key="frame" x="10" y="414" width="100" height="40"/>
+                                <state key="normal" title="GPGPU"/>
+                                <connections>
+                                    <action selector="doGPGPUWithSender:" destination="BYZ-38-t0r" eventType="touchUpInside" id="hOV-i8-ddP"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pts-Ta-TD5">
+                                <rect key="frame" x="120" y="414" width="894" height="40"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="21"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="tea-kd-Fg3" firstAttribute="top" secondItem="K0Q-7H-eF3" secondAttribute="bottom" constant="10" id="0y4-mj-QqR"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="nO1-Gk-EhY" secondAttribute="trailing" constant="10" id="1yd-HV-f6V"/>
+                            <constraint firstItem="pts-Ta-TD5" firstAttribute="bottom" secondItem="tea-kd-Fg3" secondAttribute="bottom" id="9ry-Y6-s6B"/>
+                            <constraint firstItem="nO1-Gk-EhY" firstAttribute="leading" secondItem="qRc-Ed-LKO" secondAttribute="leading" id="BGk-iG-eqE"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="Fg1-vF-X5J"/>
+                            <constraint firstItem="tea-kd-Fg3" firstAttribute="leading" secondItem="K0Q-7H-eF3" secondAttribute="leading" id="Frj-5f-yqx"/>
+                            <constraint firstItem="nO1-Gk-EhY" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="HoX-ac-tIt"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="top" secondItem="w3r-Sd-X2Q" secondAttribute="bottom" constant="10" id="L6c-qC-wiR"/>
+                            <constraint firstItem="qRc-Ed-LKO" firstAttribute="top" secondItem="w3r-Sd-X2Q" secondAttribute="top" id="PC5-5l-6Cg"/>
+                            <constraint firstItem="qRc-Ed-LKO" firstAttribute="bottom" secondItem="w3r-Sd-X2Q" secondAttribute="bottom" id="Pb6-Tp-4d7"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="trailing" secondItem="w3r-Sd-X2Q" secondAttribute="trailing" id="Qie-Z1-pyj"/>
+                            <constraint firstItem="pts-Ta-TD5" firstAttribute="top" secondItem="tea-kd-Fg3" secondAttribute="top" id="S5m-FV-cuq"/>
+                            <constraint firstItem="nO1-Gk-EhY" firstAttribute="leading" secondItem="K0Q-7H-eF3" secondAttribute="trailing" constant="10" id="Wva-fF-kdK"/>
+                            <constraint firstItem="tea-kd-Fg3" firstAttribute="trailing" secondItem="K0Q-7H-eF3" secondAttribute="trailing" id="YXM-RL-Rwv"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="top" secondItem="w3r-Sd-X2Q" secondAttribute="bottom" constant="10" id="a6q-zv-4BW"/>
+                            <constraint firstItem="nO1-Gk-EhY" firstAttribute="trailing" secondItem="qRc-Ed-LKO" secondAttribute="trailing" id="aQp-Cc-Aac"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="height" secondItem="w3r-Sd-X2Q" secondAttribute="height" id="aXw-e0-oAk"/>
+                            <constraint firstItem="tea-kd-Fg3" firstAttribute="height" secondItem="K0Q-7H-eF3" secondAttribute="height" id="dE8-Jc-a30"/>
+                            <constraint firstItem="nO1-Gk-EhY" firstAttribute="height" secondItem="K0Q-7H-eF3" secondAttribute="height" id="gWH-EJ-HAY"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="leading" secondItem="w3r-Sd-X2Q" secondAttribute="leading" id="iLE-mn-K7a"/>
+                            <constraint firstItem="tea-kd-Fg3" firstAttribute="top" secondItem="K0Q-7H-eF3" secondAttribute="bottom" constant="10" id="p0J-Vf-tIt"/>
+                            <constraint firstItem="K0Q-7H-eF3" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="uz7-IE-vEk"/>
+                            <constraint firstItem="pts-Ta-TD5" firstAttribute="leading" secondItem="nO1-Gk-EhY" secondAttribute="leading" id="wF1-DJ-6tS"/>
+                            <constraint firstItem="pts-Ta-TD5" firstAttribute="trailing" secondItem="nO1-Gk-EhY" secondAttribute="trailing" id="yVH-J1-uxh"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="gcdLabel" destination="nO1-Gk-EhY" id="roI-3d-Cnc"/>
+                        <outlet property="gpgpuLabel" destination="pts-Ta-TD5" id="dUt-z6-fTI"/>
+                        <outlet property="sequenceLabel" destination="qRc-Ed-LKO" id="NdB-8F-A5w"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="137.6953125" y="137.5"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>
