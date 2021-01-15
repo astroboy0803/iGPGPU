@@ -15,33 +15,47 @@ class ViewController: UIViewController {
     
     @IBOutlet private weak var gpgpuLabel: UILabel?
     
-    private let row: Int = 3000
-    private let column: Int = 40000
+    private let row: Int = 30001
+    private let column: Int = 4001
+    
+    private var array = [[Double]]()
+    
+    private var gpAry = [Float]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
     }
+    @IBAction private func doRelease(sender: Any) {
+        self.array.removeAll()
+        self.gpAry.removeAll()
+        print(self.array.count)
+        print(self.gpAry.count)
+    }
     
     @IBAction private func doSequence(sender: Any) {
-        var array = Array(repeating: Array<Double>(repeating: 0, count: self.column), count: self.row)
+        self.array.removeAll()
         let start = DispatchTime.now()
         for i in 0..<row {
-            for j in 0..<column{
-                array[i][j] = Double(i * j)
+            var ary = [Double]()
+            for j in 0..<column {
+                ary.append(Double(i * j))
             }
+            self.array.append(ary)
         }
         let end = DispatchTime.now()
         let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
         let timeInterval = Double(nanoTime) / 1_000_000_000
         self.sequenceLabel?.text = "Time to execute: \(timeInterval) seconds"
+        print(self.array.last?.last ?? .zero)
     }
 
     @IBAction private func doGCD(sender: Any) {
+        self.array.removeAll()
+        self.array = [[Double]].init(repeating: [Double](), count: self.row)
         let button = sender as? UIButton
         button?.isEnabled = false
         let group = DispatchGroup()
         let saveQueue = DispatchQueue(label: "saveWorker")
-        var array = Array(repeating: Array<Double>(repeating: 0, count: self.column), count: self.row)
         
         let start = DispatchTime.now()
         for i in 0..<row {
@@ -52,7 +66,7 @@ class ViewController: UIViewController {
                     values.append(Double(i * j))
                 }
                 saveQueue.async {
-                    array[i] = values
+                    self.array[i] = values
                     group.leave()
                 }
             }
@@ -63,38 +77,128 @@ class ViewController: UIViewController {
             let timeInterval = Double(nanoTime) / 1_000_000_000
             self.gcdLabel?.text = "Time to execute: \(timeInterval) seconds"
             button?.isEnabled = true
+            print(self.array.last?.last ?? .zero)
         }
     }
     
     @IBAction private func doGPGPU(sender: Any) {
-        guard let device = MTLCreateSystemDefaultDevice(), let commandQueue = device.makeCommandQueue(), let library = device.makeDefaultLibrary(), let commandBuffer = commandQueue.makeCommandBuffer(), let computeEncoder = commandBuffer.makeComputeCommandEncoder(), let computeFunction = library.makeFunction(name: "kernel_main"), let computePipelineState = try? device.makeComputePipelineState(function: computeFunction) else {
-            debugPrint("cant use metal")
-            return
-        }
-        var aColumn = self.column
-        let aRow = self.row
-        var array = Array(repeating: Array<Double>(repeating: 0, count: aColumn), count: aRow)
-
+//        if self.gpAry.count > 0 {
+//            for idx in (self.column + 1)..<self.gpAry.count {
+//                if self.gpAry[idx] != 0 {
+//                    print("idx(\(idx)) = \(self.gpAry[idx])")
+//                }
+//            }
+//        }
+        
+        self.gpAry.removeAll()
+        
         let start = DispatchTime.now()
-        let matrixBuffer = device.makeBuffer(bytes: &array, length: Int(aRow*aColumn) * MemoryLayout<Float>.stride, options: [])
-        computeEncoder.pushDebugGroup("settingup")
+        
+        // initial
+        let device = MTLCreateSystemDefaultDevice()!
+        let library = device.makeDefaultLibrary()!
+        let computeFunction = library.makeFunction(name: "multiply")!
+        let computePipelineState = try! device.makeComputePipelineState(function: computeFunction)
+        let commandQueue = device.makeCommandQueue()!
+        
+        let times = self.row * self.column
+        
+        // prepare data - create buffer
+        let rowBuffer = device.makeBuffer(length: self.row * MemoryLayout<Float>.stride, options: .storageModeShared)
+        let columnBuffer = device.makeBuffer(length: self.column * MemoryLayout<Float>.stride, options: .storageModeShared)
+        let resultBuffer = device.makeBuffer(length: times * MemoryLayout<Float>.stride, options: .storageModeShared)
+        let lengthBuffer = device.makeBuffer(length: times * MemoryLayout<UInt>.stride, options: .storageModeShared)
+        self.generateData(buffer: rowBuffer, count: self.row)
+        self.generateData(buffer: columnBuffer, count: self.column)
+        self.generateData(buffer: lengthBuffer, count: 1, value: self.column)
+        
+        let commandBuffer = commandQueue.makeCommandBuffer()!
+        let computeEncoder = commandBuffer.makeComputeCommandEncoder()!
+        
         computeEncoder.setComputePipelineState(computePipelineState)
-        computeEncoder.setBuffer(matrixBuffer, offset: 0, index: 0)
-        computeEncoder.setBytes(&aColumn, length: MemoryLayout<uint>.stride, index: 1)
-        let threadsPerThreadGrid = MTLSizeMake(Int(aRow * aColumn), 1, 1)
-        computeEncoder.dispatchThreadgroups(threadsPerThreadGrid, threadsPerThreadgroup: MTLSizeMake(1, 1, 1))
+        computeEncoder.setBuffer(rowBuffer, offset: 0, index: 0)
+        computeEncoder.setBuffer(columnBuffer, offset: 0, index: 1)
+        computeEncoder.setBuffer(lengthBuffer, offset: 0, index: 2)
+        computeEncoder.setBuffer(resultBuffer, offset: 0, index: 3)
+        
+        // Calculate a threadgroup size.
+        var threadGroupSize = computePipelineState.maxTotalThreadsPerThreadgroup
+        if threadGroupSize > times {
+            threadGroupSize = times
+        }
+        var gSize = times / threadGroupSize
+        if times % threadGroupSize != .zero {
+            gSize += 1
+        }
+        let gridSize = MTLSizeMake(gSize, 1, 1)
+        let threadsPerThreadGrid = MTLSizeMake(threadGroupSize, 1, 1)
+        computeEncoder.dispatchThreadgroups(gridSize, threadsPerThreadgroup: threadsPerThreadGrid)
         computeEncoder.endEncoding()
-        computeEncoder.popDebugGroup()
         commandBuffer.commit()
         commandBuffer.waitUntilCompleted()
-
+        
+        if let rawPointer = resultBuffer?.contents() {
+            let pointer = rawPointer.bindMemory(to: Float.self, capacity: times)
+            let bufferPointer = UnsafeBufferPointer(start: pointer, count: times)
+            self.gpAry = [Float](bufferPointer)
+        }
+        
         let end = DispatchTime.now()
         let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
         let timeInterval = Double(nanoTime) / 1_000_000_000
+        
         self.gpgpuLabel?.text = "Time to execute: \(timeInterval) seconds"
-        let contents = matrixBuffer?.contents()
-        let pointer = contents?.bindMemory(to: Float.self, capacity: Int(aRow*aColumn))
-        print(array.last?.last)
+        let value = self.gpAry.last ?? -1
+        print(value)
+    }
+    
+    private final func generateData(buffer: MTLBuffer?, count: Int) {
+        guard let buffer = buffer else {
+            return
+        }
+        var pointer = buffer.contents()
+        for idx in 0..<count {
+            pointer.storeBytes(of: Float(idx), as: Float.self)
+            pointer += MemoryLayout<Float>.stride
+        }
+        
+        // verify
+        //self.verify(buffer: buffer, count: count)
+    }
+    
+    private final func generateData(buffer: MTLBuffer?, count: Int, value: Int) {
+        guard let buffer = buffer else {
+            return
+        }
+        let info = UInt(value)
+        var pointer = buffer.contents()
+        for _ in 0..<count {
+            pointer.storeBytes(of: info, as: UInt.self)
+            pointer += MemoryLayout<UInt>.stride
+        }
+        
+        // verify
+        //self.verify(buffer: buffer, count: count)
+    }
+    
+    private final func verify(buffer: MTLBuffer?, count: Int) {
+        guard let buffer = buffer else {
+            return
+        }
+        var vPointer = buffer.contents()
+        
+        // print last
+        vPointer += MemoryLayout<Float>.stride * (count - 1)
+        let value = vPointer.load(as: Float.self)
+        print(value)
+        
+//        let start = count / 2
+//        let end = count + self.column
+//        for idx in start..<end {
+//            let value = vPointer.load(as: Float.self)
+//            print("index(\(idx)) = \(value)")
+//            vPointer += MemoryLayout<Float>.stride
+//        }
     }
 }
 
